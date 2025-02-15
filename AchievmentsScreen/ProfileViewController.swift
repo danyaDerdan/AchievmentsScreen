@@ -6,6 +6,7 @@ class ProfileViewController: UIViewController{
     private var cardBottomConstraint: NSLayoutConstraint!
     private var collectionViewTopConstraint: NSLayoutConstraint!
     private var isCardCollapsed: Bool = true
+    private var isDetailCardExpanded: Bool = false
     
     private let achievments = Achievement.demoData
     
@@ -30,7 +31,6 @@ class ProfileViewController: UIViewController{
         
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .clear
-        view.showsHorizontalScrollIndicator = false
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -88,7 +88,7 @@ class ProfileViewController: UIViewController{
         let stackViewBottomPadding: CGFloat = 16
         let initialCardPosition = -(CGFloat(nameLabelHeight) + stackViewBottomPadding + view.safeAreaInsets.bottom)
         cardBottomConstraint = cardView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: initialCardPosition)
-        collectionViewTopConstraint = collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: UIConstants.cardViewHeight)
+        collectionViewTopConstraint = collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: UIConstants.cardViewHeight + UIConstants.leadingInset)
         
         NSLayoutConstraint.activate([
             cardBottomConstraint,
@@ -142,9 +142,92 @@ class ProfileViewController: UIViewController{
             
         
     }
+    
+    private func showAlert(achievment: Achievement) {
+        let alertController = UIAlertController(title: "\(achievment.title)", message: "\(achievment.description)", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: .default))
+        present(alertController, animated: true)
+    }
+    @objc private func openCard(_ sender: UIPinchGestureRecognizer ) {
+        if (!isDetailCardExpanded) {
+            showDetailView(achievment: achievments[sender.view?.tag ?? 0])
+            isDetailCardExpanded = true
+        }
+    }
+    
+    @objc private func closeCard(_ sender: UIPinchGestureRecognizer ) {
+        if (isDetailCardExpanded) {
+            sender.view?.removeFromSuperview()
+            isDetailCardExpanded = false
+        }
+    }
+    
+    private func showDetailView(achievment: Achievement) {
+        let view = UIView()
+        view.layer.cornerRadius = UIConstants.cardCornerRadius
+        view.backgroundColor = .white
+        view.addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(closeCard)))
+        
+        let titleLabel = createLabel(text: achievment.title, font: .boldSystemFont(ofSize: 24))
+        let descriptionLabel = createLabel(text: achievment.description, font: .systemFont(ofSize: 18))
+        let dateLabel = createLabel(text: achievment.dateOfCompletion, font: .systemFont(ofSize: 14))
+        dateLabel.textColor = achievment.color
+        let imageView = UIImageView(image: UIImage(systemName: achievment.iconName))
+        imageView.contentMode = .scaleAspectFill
+        imageView.tintColor = achievment.color
+        let slider = UISlider()
+        slider.isEnabled = false
+        slider.minimumValue = 0
+        slider.maximumValue = 100
+        slider.setThumbImage(nil, for: .normal)
+        slider.minimumTrackTintColor = achievment.color
+        slider.value = Float(achievment.percentage)
+        let stackView = UIStackView(arrangedSubviews: [imageView, titleLabel, descriptionLabel, dateLabel])
+        stackView.axis = .vertical
+        stackView.spacing = UIConstants.profileStackSpacing
+        stackView.alignment = .center
+        
+        self.view.addSubview(view)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: UIConstants.leadingInset),
+            view.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -UIConstants.leadingInset),
+            view.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            view.widthAnchor.constraint(equalTo: cardView.widthAnchor)
+        ])
+        
+        view.addSubview(stackView)
+        slider.translatesAutoresizingMaskIntoConstraints = false
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: UIConstants.leadingInset),
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -UIConstants.leadingInset),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            imageView.heightAnchor.constraint(equalToConstant: UIConstants.avatarImageSize),
+            
+            ])
+        if (achievment.percentage != 100) {
+            view.addSubview(slider)
+            NSLayoutConstraint.activate([
+                slider.heightAnchor.constraint(equalToConstant: UIConstants.sliderHeight),
+                slider.widthAnchor.constraint(equalTo: stackView.widthAnchor, multiplier: UIConstants.widthMultiplier),
+                slider.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+                slider.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: UIConstants.profileStackPadding)
+                ])
+        }
+    }
+    
+    private func createLabel(text: String?, font: UIFont) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = font
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        return label
+    }
 
 }
-
 
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
@@ -155,8 +238,16 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AchievementCell", for: indexPath) as? AchievmentCell else { return UICollectionViewCell()}
         cell.configure(with: achievments[indexPath.item])
+        cell.tag = indexPath.item
+        cell.addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(openCard)))
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        showAlert(achievment: achievments[indexPath.item])
+    }
+    
+    
     
     
 }

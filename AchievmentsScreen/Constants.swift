@@ -25,4 +25,8 @@ enum UIConstants {
     
     static let leadingInset: CGFloat = 16
     static let cardViewHeight: CGFloat = 200
+    
+    static let sliderHeight: CGFloat = 8
+    static let widthMultiplier: CGFloat = 0.8
+    
 }

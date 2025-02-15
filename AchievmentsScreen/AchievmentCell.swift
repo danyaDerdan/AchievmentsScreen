@@ -30,7 +30,6 @@ final class AchievmentCell: UICollectionViewCell {
     }()
     
     private func setupUI() {
-        backgroundColor = .white
         layer.cornerRadius = UICellConstants.cornerRadius
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = UICellConstants.shadowOpacity
@@ -47,14 +46,15 @@ final class AchievmentCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: UICellConstants.stackPadding),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -UICellConstants.stackPadding),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             imageView.heightAnchor.constraint(equalToConstant: UICellConstants.imageHeight)
             ])
     }
     
     func configure(with achievment: Achievement) {
         setupUI()
+        backgroundColor = achievment.percentage == 100 ? .white : .systemGray6
         nameLabel.text = achievment.title
         imageView.image = UIImage(systemName: achievment.iconName)?.withRenderingMode(.alwaysTemplate)
         imageView.tintColor = achievment.color
