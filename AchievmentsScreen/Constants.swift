@@ -1,11 +1,11 @@
 import UIKit
 
-private enum UserInfo {
+enum UserInfo {
     static let name = "Федор Конюхов"
     static let bio = "Ну, наверное, в описании не нуждается"
 }
 
-private enum UIConstants {
+enum UIConstants {
     static let cardCornerRadius: CGFloat = 32
     static let cardShadowOpacity: Float = 0.1
     static let cardShadowRadius: CGFloat = 8
@@ -22,4 +22,11 @@ private enum UIConstants {
     
     static let cardDefaultBottomConstant: CGFloat = 50
     static let collectionHiddenAlpha: CGFloat = 0
+    
+    static let leadingInset: CGFloat = 16
+    static let cardViewHeight: CGFloat = 200
+    
+    static let sliderHeight: CGFloat = 8
+    static let widthMultiplier: CGFloat = 0.8
+    
 }
