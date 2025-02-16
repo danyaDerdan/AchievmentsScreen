@@ -13,8 +13,7 @@ final class DetailView: UIView {
         titleLabel = createLabel(text: "", font: .boldSystemFont(ofSize: 24))
         descriptionLabel = createLabel(text: "", font: .systemFont(ofSize: 18))
         dateLabel = createLabel(text: "", font: .systemFont(ofSize: 14))
-        guard let imageView else { return }
-        guard let slider else { return }
+        guard let imageView, let slider else { return }
         
         imageView.contentMode = .scaleAspectFill
         slider.isEnabled = false

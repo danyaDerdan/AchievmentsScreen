@@ -91,8 +91,7 @@ final class ProfileViewController: UIViewController {
         let initialCardPosition = -(CGFloat(nameLabelHeight) + stackViewBottomPadding + view.safeAreaInsets.bottom)
         cardBottomConstraint = cardView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: initialCardPosition)
         collectionViewTopConstraint = collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: UIConstants.cardViewHeight + UIConstants.leadingInset)
-        guard let cardBottomConstraint else { return }
-        guard let collectionViewTopConstraint else { return }
+        guard let cardBottomConstraint, let collectionViewTopConstraint else { return }
         
         NSLayoutConstraint.activate([
             cardBottomConstraint,
@@ -128,22 +127,21 @@ final class ProfileViewController: UIViewController {
         isCardCollapsed.toggle()
         
         UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseInOut, animations: { [weak self] in
-            guard let self else { return }
-            guard let cardBottomConstraint else { return }
-            if self.isCardCollapsed {
-                let nameLabelHeight = self.nameLabel.intrinsicContentSize.height
+            guard let self, let cardBottomConstraint else { return }
+            if isCardCollapsed {
+                let nameLabelHeight = nameLabel.intrinsicContentSize.height
                 let stackViewBottomPadding: CGFloat = 16
-                let targetPosition = -(CGFloat(nameLabelHeight) + stackViewBottomPadding + self.view.safeAreaInsets.bottom)
-                self.cardBottomConstraint?.constant = targetPosition
+                let targetPosition = -(CGFloat(nameLabelHeight) + stackViewBottomPadding + view.safeAreaInsets.bottom)
+                cardBottomConstraint.constant = targetPosition
             } else {
-                self.cardBottomConstraint?.constant = -(self.view.frame.height - self.view.safeAreaInsets.top - UIConstants.cardViewHeight)
+                cardBottomConstraint.constant = -(view.frame.height - view.safeAreaInsets.top - UIConstants.cardViewHeight)
             }
-            self.collectionView.transform = self.isCardCollapsed ?
-            CGAffineTransform(translationX: 0, y: self.view.frame.height / 2) :
+            collectionView.transform = isCardCollapsed ?
+            CGAffineTransform(translationX: 0, y: view.frame.height / 2) :
             .identity
-            self.collectionView.alpha = self.isCardCollapsed ? 0 : 1
-            self.bioLabel.alpha = self.isCardCollapsed ? 0 : 1
-            self.view.layoutIfNeeded()
+            collectionView.alpha = isCardCollapsed ? 0 : 1
+            bioLabel.alpha = isCardCollapsed ? 0 : 1
+            view.layoutIfNeeded()
         }) { _ in
             self.collectionView.isUserInteractionEnabled = !self.isCardCollapsed}
             
@@ -156,8 +154,8 @@ final class ProfileViewController: UIViewController {
         present(alertController, animated: true)
     }
     @objc private func openCard(_ sender: UIPinchGestureRecognizer ) {
-        if (!isDetailCardExpanded) {
-            detailView?.configure(with: achievments[sender.view?.tag ?? 0])
+        if let tag = sender.view?.tag, !isDetailCardExpanded  {
+            detailView?.configure(with: achievments[tag])
             detailView?.isHidden = false
             isDetailCardExpanded = true
         }
