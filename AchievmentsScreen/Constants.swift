@@ -1,8 +1,8 @@
 import UIKit
 
 enum UserInfo {
-    static let name = "Федор Конюхов"
-    static let bio = "Ну, наверное, в описании не нуждается"
+    static let name = "Матюшин Богдан"
+    static let bio = "'' Щас будет самая жесткая подача''"
 }
 
 enum UIConstants {
